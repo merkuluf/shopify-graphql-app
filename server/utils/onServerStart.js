@@ -1,81 +1,118 @@
 const { client } = require('../api/graphqlClient')
 const queries = require('../api/queries')
-const regexp = require('./regexp')
-const prisma = require('../prisma/prismaClient')
 
-const getProducts = async () => {
-    try {
-        const productsExist = await prisma.product.findMany();
-        return { "error": false, "data": productsExist }
-    } catch (error) {
-        return { "error": true, "data": error }
-    }
-}
+const prisma = require('../prisma/prismaClient')
+const imageOperations = require('../prisma/utils/imageOperations')(prisma)
+const productOperations = require('../prisma/utils/productOperations')(prisma)
+
+
 
 const onServerStart = async () => {
 
-    const productsExist = await getProducts();
-
-    // if error occured
+    // fetch database
+    const productsExist = await productOperations.findAllProducts();
+    // if error occured in fetching database
     if (productsExist.error === true) {
         return console.log(productsExist)
     }
 
-    // if there are no products in database
-    if (productsExist.data.length === 0) {
 
-        // fetch products
-        const gqlres = await client.request(queries.products)
+    // get actualized list of products from gql
+    const gql_res = await client.request(queries.products)
+    // format data
+    const fetchedProducts = gql_res.products.edges.map(edge => {
+        const { id, bodyHtml, images } = edge.node;
 
-        // format data
-        const products = gqlres.products.edges.map(edge => {
-            const { id, bodyHtml, images } = edge.node;
-
-            // clean up urls from bodyHtml 
-            const _bodyHtml = regexp.removeImageUrls(bodyHtml)
-
-            return {
-                id,
-                _bodyHtml,
-                imageUrls: images.nodes.map(image => image.src)
-            };
-        });
+        return {
+            id,
+            bodyHtml,
+            imageUrls: images.nodes.map(image => image.src)
+        };
+    });
 
 
-        const addedProducts = []
+    // update and/or add products to database
+    for (const fetchedProduct of fetchedProducts) {
 
-        // add data to database
-        for (const product of products) {
-            try {
+        // find each product by shopify_id
+        const existingProduct = await productOperations.findProductByShopifyId(fetchedProduct.id)
 
-                // initialize product
-                const newProduct = await prisma.product.create({
-                    data: {
-                        shopify_id: product.id,
-                        bodyHtml: product._bodyHtml,
-                    }
-                })
-
-                // create images linked to this product
-                for (const imageUrl of product.imageUrls) {
-                    await prisma.image.create({
-                        data: {
-                            url: imageUrl,
-                            productId: newProduct.id
-                        }
-                    });
-                }
-
-                addedProducts.push({ product_id: newProduct.id })
-            } catch (error) {
-                console.log(error)
-            }
+        // in case of error it is possible to handle or set up logger here
+        if (existingProduct.error === true) {
+            console.log(existingProduct)
+            return
         }
 
-        return console.log('Products added', addedProducts)
+        // if product already exist
+        if (existingProduct.data) {
+            updateProduct(existingProduct.data.id, fetchedProduct)
+        } else {
+            addProduct(fetchedProduct)
+        }
+
+    }
+}
+
+const addProduct = async (fetchedProduct) => {
+
+    console.log(`Adding ${fetchedProduct.id}`)
+
+    // initialize product
+    const newProduct = await productOperations.addProductToDb(fetchedProduct.id, fetchedProduct.bodyHtml)
+
+    // in case of error it is possible to handle or set up logger here
+    if (newProduct.error === true) {
+        console.log(newProduct)
+        return
     }
 
-    return console.log('Database already have products')
+    // create images linked to this product
+    for (const imageUrl of fetchedProduct.imageUrls) {
+
+        const addedImage = await imageOperations.addImageToDb(imageUrl, newProduct.data.id)
+        if (addedImage.error === true) {
+            console.log(addedImage)
+            return
+        }
+    }
+
+}
+
+
+const updateProduct = async (product_id, fetchedProduct) => {
+
+    console.log(`Updating ${product_id}`)
+
+    // for convenience
+    const image_list = fetchedProduct.imageUrls
+    const shopify_id = fetchedProduct.id
+    const body_html = fetchedProduct.bodyHtml
+
+    // update existing product
+    const updatedProduct = await productOperations.updateExistingProduct(product_id, shopify_id, body_html)
+    if (updatedProduct.error === true) {
+        console.log(updatedProduct)
+        return
+    }
+
+    // for each fetched image from graphql
+    for (const fetchedImage in image_list) {
+
+        const photoUrlExist = await imageOperations.findPhotoByUrl(fetchedImage.url)
+        if (photoUrlExist.error === true) {
+            console.log(photoUrlExist)
+            return
+        }
+
+        if (!photoUrlExist.data) {
+            const addedImage = await imageOperations.addImageToDb(fetchedImage.url, product_id)
+            if (addedImage.error === true) {
+                console.log(addedImage)
+                return
+            }
+        }
+    }
+
 }
 
 module.exports = onServerStart;
