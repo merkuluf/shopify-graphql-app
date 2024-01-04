@@ -22,31 +22,34 @@ This fullstack application demonstrates an integration with Shopify's GraphQL AP
 1. **Clone the repository:**
 
    ```bash
-   git clone [your-repository-link]
-   cd [your-repository-name]
+   git clone [https://github.com/merkuluf/shopify-graphql-app/]
+   cd [shopify-graphql-app]
 
-
-2. **Install dependencies:**
+2. **Install dependencies and .env for server:**
 
    ```bash
    cd server
    npm install
+   DATABASE_URL="postgresql://..."
+   SHOPIFY_TOKEN="shpat_..."
+
+3. **Install dependencies for client**
+   
+   ```bash
    cd ../client
    npm install
 
-3. **Set up environment variables:**
-
-   DATABASE_URL="your-database-url"
-   SHOPIFY_ACCESS_TOKEN="your-shopify-access-token"
-
-4. **Run database migration:**
+3. **Run database migration:**
 
    ```bash
+   cd ..
    npx prisma migrate dev
 
-5. **Run application:**
+4. **Run application:**
 
    ```bash
    npm run dev
-   cd ../server
+   cd server
    node index.js
+   cd ../client
+   npm run dev
