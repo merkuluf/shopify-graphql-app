@@ -56,4 +56,4 @@ This fullstack application demonstrates an integration with Shopify's GraphQL AP
 
 5. **Usage:**
 
-Once both the server and client are running, navigate to http://localhost:3000 in your web browser to view the React frontend displaying the products in a grid.
+Once both the server and client are running, navigate to http://localhost:5173 in your web browser to view the React frontend displaying the products in a grid.
