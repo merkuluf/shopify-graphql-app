@@ -30,20 +30,14 @@ This fullstack application demonstrates an integration with Shopify's GraphQL AP
    ```bash
    cd server
    npm install
-   DATABASE_URL="postgresql://..."
-   SHOPIFY_TOKEN="shpat_..."
+   DATABASE_URL=postgresql://...
+   SHOPIFY_TOKEN=shpat_...
 
 3. **Install dependencies for client**
    
    ```bash
    cd ../client
    npm install
-
-3. **Run database migration:**
-
-   ```bash
-   cd ..
-   npx prisma migrate dev
 
 4. **Run application:**
 
