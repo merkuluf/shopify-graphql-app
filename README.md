@@ -22,8 +22,8 @@ This fullstack application demonstrates an integration with Shopify's GraphQL AP
 1. **Clone the repository:**
 
    ```bash
-   git clone [https://github.com/merkuluf/shopify-graphql-app/]
-   cd [shopify-graphql-app]
+   git clone https://github.com/merkuluf/shopify-graphql-app/
+   cd shopify-graphql-app
 
 2. **Install dependencies and .env for server:**
 
