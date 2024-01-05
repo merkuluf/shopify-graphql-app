@@ -1,0 +1,48 @@
+.product-card {
+    background-color: #fff;
+    color: var(--col_bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
+    max-width: 300px;
+    margin: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+          /*top  sides bottom*/
+    padding: 20px 13px 50px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    gap: 10px;
+}
+
+
+.product-card .canvas {
+    width: auto;
+    max-height: 150px;
+
+}
+
+.text-holder-hide {
+    width: 100%;
+    max-height: 80px;
+    overflow: hidden;
+    border: 1px solid #7373733e;
+    padding: 0px 4px;
+    border-radius: 8px;
+}
+
+.text-holder-show {
+    width: 100%;
+    border: 1px solid #7373733e;
+    padding: 0px 4px;
+    border-radius: 8px;
+}
+
+.product-button {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+}

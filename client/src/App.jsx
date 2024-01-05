@@ -3,25 +3,27 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { setProducts } from "./redux/actions"
 import useFetch from "./hooks/useFetch"
-import Canvas from "./components/Canvas"
 import removeImageUrls from "./utils/removeImageUrls"
 
-import './styles/main.css'
+import Loading from "./components/Loading"
+import Error from "./components/Error"
+import ProductCard from "./components/ProductCard"
 
-
+import './static/styles/main.css'
 
 function App() {
 
 	// fetch products
-	const { data, error, isLoading } = useFetch('http://localhost:3000/api/products')
+	const { data, error, isLoading } = useFetch('https://0sgexe-ip-185-18-54-8.tunnelmole.net/api/products')
+	// const { data, error, isLoading } = useFetch('http://localhost:3000/api/products')
 	const dispatch = useDispatch()
 
 	useEffect(() => {
 		if (data) {
-			
+
 			// remove image urls.
 			const data_without_image_urls = data.map((item, index) => {
-				return {...item, bodyHtml: removeImageUrls(item.bodyHtml)}
+				return { ...item, bodyHtml: removeImageUrls(item.bodyHtml) }
 			})
 
 			// set products state in redux
@@ -34,22 +36,24 @@ function App() {
 
 
 	return (
-        <main className="grid">
+		<main className="grid">
 			<div className="grid-item cards-holder">
-            {isLoading ? <p>Loading...</p> :
-            error ? <p>Error occurred</p> :
-			products.length === 0 ? 
-			<p>No data to show...</p> :
-            products.map((product, index) => (
-                <div className="product-card" key={index}>
-                    <Canvas id={`canvas-${index}`} url={product.images[0]} />
-                    <div className="text-holder" 
-						dangerouslySetInnerHTML={{ __html: `${product.bodyHtml}` }} 
+				{isLoading ? <Loading />
+					:
+				error ? <Error />
+					:
+				products.length === 0 ? <h1>No data to show...</h1>
+					:
+				products.map((product, index) => (
+					<ProductCard
+						key={`product-card-${index}`}
+						canvas_id={`canvas-${index}}`}
+						image_url={product.images[0]}
+						inner_html={product.bodyHtml}
 					/>
-                </div>
-            ))}
+				))}
 			</div>
-        </main>
+		</main>
 	)
 }
 

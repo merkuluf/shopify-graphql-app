@@ -1,26 +1,25 @@
 const prisma = require('../prisma/prismaClient')
+const productOperations = require('../prisma/utils/productOperations')(prisma)
+
+const ApiError = require('../utils/ApiError')
 
 exports.fetchProducts = async (req, res) => {
-    try {
 
-        // fetch all products with images
-        const products = await prisma.product.findMany({
-            include: {
-                images: true, 
-            }
-        });
+    // fetch all products with images
+    const products = await productOperations.findAllProductsWithImages();
 
-        // delete database related info from images and leave only urls
-        const productsWithImageUrls = products.map(product => {
-            return {
-                ...product,
-                images: product.images.map(image => image.url)
-            }
-        })
-
-        return res.json(productsWithImageUrls);
-    } catch (error) {
-        console.error("Error fetching products:", error);
-        return res.status(500).send("Error fetching products");
+    if (products.error === true) {
+        throw new ApiError(500, products.data)
     }
-}
+
+    // delete database related info from images and leave only urls
+    const productsWithImageUrls = products.data.map(product => {
+        return {
+            ...product,
+            images: product.images.map(image => image.url)
+        }
+    })
+
+    return res.json(productsWithImageUrls);
+
+};

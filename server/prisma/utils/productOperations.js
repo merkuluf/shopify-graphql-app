@@ -48,10 +48,26 @@ module.exports = (prisma) => {
         }
     };
 
+    const findAllProductsWithImages = async () => {
+        try {
+            const products = await prisma.product.findMany({
+                include: {
+                    images: true, 
+                }
+            });
+            return {"error": false, "data": products}
+        } catch (error) {
+            return { "error": true, "data": error }
+        }
+        
+
+    }
+
     return {
+        findAllProductsWithImages,
         findProductByShopifyId,
-        addProductToDb,
+        updateExistingProduct,
         findAllProducts,
-        updateExistingProduct
+        addProductToDb,
     };
 };

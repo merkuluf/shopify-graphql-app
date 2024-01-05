@@ -14,13 +14,13 @@
 
   --col_bg: #101010;
   --col_text: #FAFAFA;
+  --col_btn: #183371;
 
   --size_margin: 20px;
 }
 
 body {
   margin: 0;
-  display: flex;
 }
 
 
