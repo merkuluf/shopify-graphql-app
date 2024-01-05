@@ -12,8 +12,6 @@ function Canvas({ id, url }) {
 
         // Create a new image object
         const image = new Image();
-
-        // Set the source of the image
         image.src = url;
 
         image.onload = () => {
@@ -24,11 +22,11 @@ function Canvas({ id, url }) {
             // Draw the image onto the canvas
             context.drawImage(image, 0, 0);
         };
-        // Optional: handle loading errors
+
         image.onerror = () => {
             console.error('Failed to load image:', url);
         };
-    }, [url]); // Redraw the canvas when the URL changes
+    }, [url]);
 
     return (
         <canvas className='canvas' id={id} ref={canvasRef}></canvas>

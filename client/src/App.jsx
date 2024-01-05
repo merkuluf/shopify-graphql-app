@@ -14,8 +14,7 @@ import './static/styles/main.css'
 function App() {
 
 	// fetch products
-	const { data, error, isLoading } = useFetch('https://0sgexe-ip-185-18-54-8.tunnelmole.net/api/products')
-	// const { data, error, isLoading } = useFetch('http://localhost:3000/api/products')
+	const { data, error, isLoading } = useFetch('http://localhost:3000/api/products')
 	const dispatch = useDispatch()
 
 	useEffect(() => {
