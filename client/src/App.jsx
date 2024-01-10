@@ -33,17 +33,14 @@ function App() {
 	// select products
 	const products = useSelector(state => state.product.list)
 
+	if (isLoading) return <Loading />
+	if (error) return <Error />
+	if (products.length === 0) return <h1>No data to show...</h1>
 
 	return (
 		<main className="grid">
 			<div className="grid-item cards-holder">
-				{isLoading ? <Loading />
-					:
-				error ? <Error />
-					:
-				products.length === 0 ? <h1>No data to show...</h1>
-					:
-				products.map((product, index) => (
+				{products.map((product, index) => (
 					<ProductCard
 						key={`product-card-${index}`}
 						canvas_id={`canvas-${index}}`}
